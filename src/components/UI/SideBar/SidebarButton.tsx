@@ -13,7 +13,7 @@ const SidebarButton: React.FC<SideButtonProps> = ({ icon, onClick, option, label
     <Tooltip title={label} placement="right" mouseEnterDelay={0.5}>
       <Button
         style={{
-          borderRadius: "10px",
+          borderRadius: "5px",
           marginTop: "10px",
         }}
         onClick={() => {
