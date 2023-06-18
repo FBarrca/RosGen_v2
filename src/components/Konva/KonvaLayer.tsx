@@ -1,13 +1,20 @@
-import React, { useState, useEffect, FC } from "react";
-import { Stage, Layer, Image } from "react-konva";
+import React, { useState, useEffect, FC, useRef } from "react";
+import { Stage, Layer, Image, Rect } from "react-konva";
 import Konva from "konva";
+import { canvasStateAtom } from "../../atoms/config_atoms";
+import { useRecoilState } from "recoil";
 
-// Constants for min and max zoom
+import { debounce } from "lodash";
+import { useDoubleClick } from "@zattoo/use-double-click";
+import TextBox from "./InputText/TextBox";
+
+
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 10;
 const ZOOM_SPEED_FACTOR = 1.1;
 
 interface KonvaLayerProps {
+  onScaleChange: (scale: number) => void;
   width: number;
   height: number;
 }
@@ -30,12 +37,32 @@ function getCenter(p1: Point, p2: Point) {
 
 const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [stageScale, setStageScale] = useState<number>(1);
-  const [stagePos, setStagePos] = useState<Point>({ x: 0, y: 0 });
   const [isZooming, setIsZooming] = useState<boolean>(false);
 
+  // const [scale, setScale] = useState(1);
+  const [canvasState, setCanvasState] = useRecoilState(canvasStateAtom);
+
+  const debouncedSetCanvasState = debounce(setCanvasState, 100);
   let lastDist = 0;
   let lastCenter: Point | null = null;
+  const stageRef = useRef<Konva.Stage>(null);
+  useEffect(() => {
+    if (!stageRef.current?.scaleX) return;
+    if (stageRef.current?.scaleX() !== canvasState.scale) {
+      stageRef.current?.scale({ x: canvasState.scale, y: canvasState.scale });
+      stageRef.current?.batchDraw();
+    }
+    if (
+      stageRef.current?.x() !== canvasState.position.x ||
+      stageRef.current?.y() !== canvasState.position.y
+    ) {
+      stageRef.current?.position({
+        x: canvasState.position.x,
+        y: canvasState.position.y,
+      });
+      stageRef.current?.batchDraw();
+    }
+  }, [canvasState]);
 
   useEffect(() => {
     const img = new window.Image();
@@ -47,12 +74,12 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
   }, []);
 
   const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>) => {
-    if (!e.evt.ctrlKey) return;
+    // if (!e.evt.ctrlKey) return;
 
     e.evt.preventDefault();
 
     window.requestAnimationFrame(() => {
-      const stage = e.target.getStage();
+      const stage: any = e.target.getStage();
       const oldScale = stage.scaleX();
       const pointerPos = stage.getPointerPosition() || { x: 0, y: 0 };
 
@@ -66,10 +93,20 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
           ? Math.min(oldScale * ZOOM_SPEED_FACTOR, MAX_SCALE)
           : Math.max(oldScale / ZOOM_SPEED_FACTOR, MIN_SCALE);
 
-      setStageScale(newScale);
-      setStagePos({
+      stage.scaleX(newScale);
+      stage.scaleY(newScale);
+
+      var newPos = {
         x: -(mousePointTo.x - pointerPos.x / newScale) * newScale,
         y: -(mousePointTo.y - pointerPos.y / newScale) * newScale,
+      };
+
+      stage.position(newPos);
+      stage.batchDraw();
+
+      debouncedSetCanvasState({
+        scale: newScale,
+        position: newPos,
       });
     });
   };
@@ -80,7 +117,7 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
     var touch1 = e.evt.touches[0];
     var touch2 = e.evt.touches[1];
     const stage = e.target.getStage();
-
+    if (!stage) return;
     if (touch1 && touch2) {
       setIsZooming(true);
 
@@ -103,24 +140,27 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
           y: (newCenter.y - stage.y()) / stage.scaleX(),
         };
 
-        var scale = stage.scaleX() * (dist / lastDist);
+        var newScale = stage.scaleX() * (dist / lastDist);
 
-        stage.scaleX(scale);
-        stage.scaleY(scale);
+        stage.scaleX(newScale);
+        stage.scaleY(newScale);
 
         // calculate new position of the stage
         var dx = newCenter.x - lastCenter.x;
         var dy = newCenter.y - lastCenter.y;
 
         var newPos = {
-          x: newCenter.x - pointTo.x * scale + dx,
-          y: newCenter.y - pointTo.y * scale + dy,
+          x: newCenter.x - pointTo.x * newScale + dx,
+          y: newCenter.y - pointTo.y * newScale + dy,
         };
-
         stage.position(newPos);
         stage.batchDraw();
+        // debouncedSetScale(newScale);
+        debouncedSetCanvasState({
+          scale: newScale,
+          position: newPos,
+        });
       }
-
       lastDist = dist;
       lastCenter = newCenter;
     }
@@ -132,33 +172,70 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
     setIsZooming(false);
   };
 
+
   const handleDragStart = (e: Konva.KonvaEventObject<DragEvent>) => {
     const stage = e.target.getStage();
+    if (!stage) return;
     if (isZooming) stage.stopDrag();
   };
 
+  const [rects, setRects] = useState<Point[]>([]);
+
+  const [ScreenPos, setScreenPos] = useState<Point>({ x: 0, y: 0 });
+  const [VisibleText, setVisibleText] = useState<boolean>(false);
+  const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
+    const emptySpace = e.target === e.target.getStage();
+    if (!emptySpace) return;
+    const stage = e.target.getStage();
+    if (!stage) return;
+    const pointerPos = stage.getRelativePointerPosition() || { x: 0, y: 0 };
+    // get screen coordinates
+    const screenPos = stage.getPointerPosition();
+    
+
+    setScreenPos((screenPos as Point));
+    setVisibleText(true);
+    console.log(screenPos);
+  };
+
   return (
-    <Stage
-      scaleX={stageScale}
-      scaleY={stageScale}
-      x={stagePos.x}
-      y={stagePos.y}
-      onTouchMove={handleMultiTouch}
-      onTouchEnd={multiTouchEnd}
-      onWheel={handleWheel}
-      width={width}
-      height={height}
-    >
-      <Layer>
-        <Image
-          image={image}
-          width={120}
-          height={120}
-          draggable={true}
-          onDragStart={handleDragStart}
-        />
-      </Layer>
-    </Stage>
+    <div>
+     
+      <Stage
+        ref={stageRef}
+        onDblClick={handleDoubleClick}
+        onContextMenu={(e) => e.evt.preventDefault()}
+        onTouchMove={handleMultiTouch}
+        onTouchEnd={multiTouchEnd}
+        onWheel={handleWheel}
+        width={width}
+        height={height}
+      >
+        <Layer>
+          <Image
+            image={image}
+            width={120}
+            height={120}
+            draggable={true}
+            onDragStart={handleDragStart}
+          />
+          <Rect x={0} y={0} width={50} height={50} fill="red" />
+          {rects.map((pos, i) => (
+                    <Rect
+                        key={i} // unique key is needed for rendering
+                        x={pos.x - 25}
+                        y={pos.y  - 25}
+                        width={50}
+                        height={50}
+                        fill="blue"
+                    />
+                ))}
+
+        </Layer>
+      </Stage>
+      {VisibleText &&  <TextBox position={ScreenPos} onPressEnter = {(e) =>setVisibleText(false)}/>
+}
+    </div>
   );
 };
 

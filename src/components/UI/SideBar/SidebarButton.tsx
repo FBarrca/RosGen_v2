@@ -15,13 +15,15 @@ const SidebarButton: React.FC<SideButtonProps> = ({ icon, onClick, option, label
         style={{
           borderRadius: "5px",
           marginTop: "10px",
+          background: selected ? "#a0d6fd" : "", 
+          borderColor: selected ? "#1677fe" : "",
+          borderWidth: selected ? "2px" : "" 
         }}
         onClick={() => {
           onClick(option); //setSidebarOption(option);
         }}
         size="large"
         icon={icon}
-        type={selected ? "primary" : "default"}
       />
     </Tooltip>
   </div>

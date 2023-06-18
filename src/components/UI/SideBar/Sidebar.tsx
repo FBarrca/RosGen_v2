@@ -14,6 +14,8 @@ import {
   PlusSquareTwoTone,
 } from "@ant-design/icons"
 import { styled } from "styled-components";
+import { useRecoilState } from "recoil";
+import { activeToolAtom } from "../../../atoms/config_atoms";
 
 const options = [
   {
@@ -50,6 +52,9 @@ const options = [
 
 
 const Sidebar: FC = () => {
+  // use tool activeToolAtom
+  const [activeTool, setActiveTool] = useRecoilState(activeToolAtom);
+
   return (
     <div className="sidebar-parent">
     <Card className="sidebar-card" 
@@ -62,10 +67,10 @@ const Sidebar: FC = () => {
         <SidebarButton
           key={option.value}
           icon={option.icon}
-          onClick={() => {}}
+          onClick={() => {setActiveTool(option.value);}}
           label={option.label}
           option={option.value}
-          selected={false}
+          selected={option.value === activeTool}
         />
       ))}
     </Card>

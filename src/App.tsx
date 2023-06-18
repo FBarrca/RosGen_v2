@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Button, ConfigProvider, theme } from 'antd';
-import * as fs from 'fs';
+import React, { useEffect, useState } from "react";
+import { Button, ConfigProvider, theme } from "antd";
 
-import KonvaLayer from './components/Konva/KonvaLayer';
-import UILayer from './components/UI/UILayer';
+import UILayer from "./components/UI/UILayer";
+import KonvaLayer from "./components/Konva/KonvaLayer";
+import { RecoilRoot } from "recoil";
 
 const App: React.FC = () => {
-  const [dimensions, setDimensions] = useState({ 
+  const [dimensions, setDimensions] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
   });
@@ -16,28 +16,28 @@ const App: React.FC = () => {
       setDimensions({
         height: window.innerHeight,
         width: window.innerWidth,
-      })
+      });
     }
-
-    window.addEventListener('resize', handleResize);
-
+    window.addEventListener("resize", handleResize);
     // Cleanup event listener on component unmount
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []); // Empty array ensures effect is only run on mount and unmount
-  
-  return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-      }}
-    >
-      <div style={{position: 'relative', background: '#ffffff', ...dimensions}}>
-        {/* KonvaLayer must also resize the canvas */}
-        <KonvaLayer width={dimensions.width} height={dimensions.height} /> 
-        <UILayer />
-      </div>
-    </ConfigProvider>
-  );
-}
 
+  return (
+    <RecoilRoot>
+      <ConfigProvider
+        theme={{
+          algorithm: theme.defaultAlgorithm,
+        }}
+      >
+        <div
+          style={{ position: "relative", background: "#ffffff", ...dimensions }}
+        >
+          <KonvaLayer width={dimensions.width} height={dimensions.height} />
+          <UILayer/>
+        </div>
+      </ConfigProvider>
+    </RecoilRoot>
+  );
+};
 export default App;
