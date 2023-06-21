@@ -14,7 +14,7 @@ import {
   PlusSquareTwoTone,
 } from "@ant-design/icons"
 import { styled } from "styled-components";
-import { useRecoilState } from "recoil";
+import { useAtom } from 'jotai';
 import { activeToolAtom } from "../../../atoms/config_atoms";
 
 const options = [
@@ -53,7 +53,7 @@ const options = [
 
 const Sidebar: FC = () => {
   // use tool activeToolAtom
-  const [activeTool, setActiveTool] = useRecoilState(activeToolAtom);
+  const [activeTool, setActiveTool] = useAtom(activeToolAtom);
 
   return (
     <div className="sidebar-parent">

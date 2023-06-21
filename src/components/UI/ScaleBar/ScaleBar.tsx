@@ -1,13 +1,13 @@
 import React from 'react';
 import {  PlusOutlined, MinusOutlined, CompressOutlined } from "@ant-design/icons";
 import { Tooltip, FloatButton } from 'antd'; 
-import { canvasStateAtom } from '../../../atoms/config_atoms';
-import { useRecoilState, useResetRecoilState } from 'recoil';
-
+import { canvasStateAtom } from 'atoms/config_atoms';
+import { useAtom } from 'jotai';
+import { useResetAtom } from 'jotai/utils'
 const ScaleBar = () => {
-    const [canvasState, setCanvasState] = useRecoilState(canvasStateAtom);
+    const [canvasState, setCanvasState] = useAtom(canvasStateAtom);
     // restore canvas state
-    const defaultCanvasState = useResetRecoilState(canvasStateAtom);
+    const defaultCanvasState = useResetAtom(canvasStateAtom)
     const zoomIn = () => {
         setCanvasState((oldCanvasState) => {
             const newScale = oldCanvasState.scale * 1.1;

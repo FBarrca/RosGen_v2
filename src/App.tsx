@@ -3,7 +3,7 @@ import { Button, ConfigProvider, theme } from "antd";
 
 import UILayer from "./components/UI/UILayer";
 import KonvaLayer from "./components/Konva/KonvaLayer";
-import { RecoilRoot } from "recoil";
+import { Provider } from "jotai";
 
 const App: React.FC = () => {
   const [dimensions, setDimensions] = useState({
@@ -24,7 +24,7 @@ const App: React.FC = () => {
   }, []); // Empty array ensures effect is only run on mount and unmount
 
   return (
-    <RecoilRoot>
+    <Provider>
       <ConfigProvider
         theme={{
           algorithm: theme.defaultAlgorithm,
@@ -37,7 +37,7 @@ const App: React.FC = () => {
           <UILayer/>
         </div>
       </ConfigProvider>
-    </RecoilRoot>
+    </Provider>
   );
 };
 export default App;

@@ -1,19 +1,15 @@
-import { atom, RecoilState } from 'recoil';
+import { atom, } from "jotai";
+import { atomWithReset } from 'jotai/utils'
 
 export interface CanvasStateInterface {
-scale: number;
-position: { x: number; y: number };
+  scale: number;
+  position: { x: number; y: number };
 }
 
-export const canvasStateAtom: RecoilState<CanvasStateInterface> = atom({
-key: 'canvasStateAtom',
-default: {
-scale: 1,
-position: { x: 0, y: 0 },
-},
+export const canvasStateAtom = atomWithReset<CanvasStateInterface>({
+  scale: 1,
+  position: { x: 0, y: 0 },
 });
 
-export const activeToolAtom: RecoilState<string>= atom({
-key: 'activeToolAtom',
-default: 'select',
-});
+export const activeToolAtom = atom<string>("select");
+

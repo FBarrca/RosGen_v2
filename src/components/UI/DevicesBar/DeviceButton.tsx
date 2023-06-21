@@ -11,7 +11,7 @@ interface DeviceButtonProps {
   name: string;
   id: number;
   onChange: (color: string) => void;
-  mode: "none" | "edit" | "delete";
+  mode: "none" |"view" |"edit" | "delete";
   selected: boolean;
   onClick: () => void;
   onClickDelete: (e: any, id: number) => void;

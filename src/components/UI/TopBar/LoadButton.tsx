@@ -3,8 +3,6 @@ import {
   Button,
   Card,
   Divider,
-  message,
-  Radio,
   Space,
   Typography,
   Tooltip,
@@ -35,12 +33,14 @@ const items: MenuProps["items"] = [
 const TopBar: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState("Hola caracola");
   const [isFilePicked, setIsFilePicked] = useState(false);
-  const changeHandler = (event) => {
+  const changeHandler = (event: any) => {
     setSelectedFile(event.target.files[0]);
     setIsFilePicked(true);
   };
 
-  const handleMenuClick = ({ item, key, keyPath, domEvent }) => {
+  const handleMenuClick = ({ key }:
+    { item: React.ReactInstance, key: string, keyPath: string[], domEvent: Event}
+    ) => {
     switch (key) {
       case "new":
         // Perform action for 1st item
@@ -60,9 +60,11 @@ const TopBar: React.FC = () => {
     }
   };
 
+  // Disable typescript error
+// @ts-ignore
   const menuProps = {
     items,
-    onClick: handleMenuClick,
+    onClick: () => {handleMenuClick},
   };
   const ref = useRef<HTMLInputElement>(null);
   const [editableStr, setEditableStr] = useState("This is an editable text.");
@@ -108,11 +110,6 @@ const TopBar: React.FC = () => {
             <ExportOutlined />
           </Button>
         </Tooltip>
-        {isFilePicked && (
-          <div>
-            <img src={URL.createObjectURL(selectedFile)} alt="My Image" />
-          </div>
-        )}
       </Space>
       <input
         type="file"

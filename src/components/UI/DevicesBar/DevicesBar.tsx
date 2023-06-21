@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState, useContext } from "react";
 import { Button, Card, List, Row, Col } from "antd";
 import DeviceButton from "./DeviceButton";
-import colorPallete from "../../../constants/colorPallete.json";
+// import colorPallete from "../../../constants/colorPallete.json";
 import styled from "styled-components";
 import "./DevicesBar.css";
 import {
@@ -59,7 +59,7 @@ const StyledCard = styled(Card)`
 const DevicesBar: FC = () => {
   const [visible, setVisible] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<number | null>(null);
-  const [mode, setMode] = useState<"view" | "edit">("view");
+  const [mode, setMode] = useState<"view" | "edit"|"none"|"delete">("view");
 
   const removeDevice = (id: number) => {
     console.log(`Device with id ${id} removed.`);
@@ -124,7 +124,7 @@ const DevicesBar: FC = () => {
                 key="setting"
                 onClick={() => {
                   setMode("none");
-                  addDevice();
+                  // addDevice();
                 }}
               />,
               <EditOutlined key="edit" onClick={() => setMode("edit")} />,

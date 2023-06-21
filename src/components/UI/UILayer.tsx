@@ -1,5 +1,3 @@
-import React, { useEffect } from "react";
-
 
 import Sidebar from "./SideBar/Sidebar";
 import TopBar from "./TopBar/TopBar";
