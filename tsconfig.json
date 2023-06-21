@@ -25,6 +25,7 @@
     "paths": {
       "src/*": ["./src/*"],
       "atoms/*": ["./src/atoms*"],
+      "hooks/*": ["./src/hooks*"],
       "components/*": ["./src/components/*"]
     }
   },

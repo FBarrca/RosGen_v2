@@ -8,6 +8,7 @@ export default defineConfig({
     alias: {
       src: "/src",
       atoms: "/src/atoms",
+      hooks: "/src/hooks",
     },
   },
   base: '/RosGen_v2/',

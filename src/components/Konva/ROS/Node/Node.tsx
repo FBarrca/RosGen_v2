@@ -1,27 +1,8 @@
-import { useAtom } from "jotai";
-import { allNodesAtom, NodeAtomFamily } from "atoms/ROS/Node";
+import { useAtom, useSetAtom } from "jotai";
+import { allNodesAtom, NodeAtomFamily,addNodeAtom } from "atoms/ROS/Node";
 import { Ellipse, Group, Rect, Text } from "react-konva";
-import { nanoid } from "nanoid";
+import { nanoid } from "nanoid"; 
 
-export const NodesRenderer = () => {
-  const [Nodes, setNodes] = useAtom(allNodesAtom);
-  const add = (e: any) => {
-    console.log("add");
-    // e.preventDefault();
-    const title = "test";
-    const id = nanoid();
-    NodeAtomFamily({ id });
-    setNodes((prev) => [...prev, id]);
-  };
-  return (
-    <>
-      <Rect onClick={(e) => add(e) } onTap={(e) => add(e)} fill="yellow" width={100} height={100} />
-      {Nodes.map((node) => (
-        <Node id={node} />
-      ))}
-    </>
-  );
-};
 
 const Node = ({ id }) => {
   const [node] = useAtom(NodeAtomFamily({ id }));
@@ -61,3 +42,5 @@ const Node = ({ id }) => {
     </Group>
   );
 };
+
+export default Node;

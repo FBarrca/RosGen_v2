@@ -15,7 +15,7 @@ import {
 } from "@ant-design/icons"
 import { styled } from "styled-components";
 import { useAtom } from 'jotai';
-import { activeToolAtom } from "../../../atoms/config_atoms";
+import { activeToolAtom } from "atoms/config_atoms";
 
 const options = [
   {

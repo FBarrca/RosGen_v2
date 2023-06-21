@@ -11,5 +11,6 @@ export const canvasStateAtom = atomWithReset<CanvasStateInterface>({
   position: { x: 0, y: 0 },
 });
 
-export const activeToolAtom = atom<string>("select");
+type ActiveTool = "comment"| "connection" |"node" | "topic" | "service";
 
+export const activeToolAtom = atom<ActiveTool>("node");

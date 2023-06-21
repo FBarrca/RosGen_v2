@@ -29,7 +29,18 @@ export const allTopicSubs = (topic) => atom((get) => {
 });
     
 
-
+export const addTopicAtom = atom(
+    null,
+    (get, set, arg?: Partial<Topic>) => {
+      const id = nanoid();
+      // Add the new id to allNodesAtom
+      set(allTopicsAtom, (prev) => [...prev, id]);
+      // Create a new node in NodeAtomFamily with arg properties
+      TopicAtomFamily({ id, title: "New topic", position: { x: 0, y: 0 }, ...arg });
+      return id;
+    }
+  );
+  
 
 //  To call use   const [item, setItem] = useAtom(todoAtomFamily({ id }));
 
