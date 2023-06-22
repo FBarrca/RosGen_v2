@@ -53,20 +53,21 @@ const TextBox: React.FC<TextBoxProps>  = ({position, stage, onExit}) => {
 
     const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         
+        const pointerPosition = stage.getRelativePointerPosition();
         if (activeTool === 'node') {
             // call addNode with no args
            const newNodeID = addNode({title:value});
               // find konva element by id
             if(!newNodeID) return;
             const konva = findKonva(newNodeID, stage);
-            konva.position({x: position.x, y: position.y});
+            konva.position({x: pointerPosition.x, y: pointerPosition.y});
             
         } else if (activeTool === 'topic') {
             const newNodeID = addTopic({title:value});
             // find konva element by id
           if(!newNodeID) return;
           const konva = findKonva(newNodeID, stage);
-          konva.position({x: position.x, y: position.y});
+          konva.position({x: pointerPosition.x, y: pointerPosition.y});
         } 
 
 
