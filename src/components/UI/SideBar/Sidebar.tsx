@@ -15,7 +15,7 @@ import {
 } from "@ant-design/icons"
 import { styled } from "styled-components";
 import { useAtom } from 'jotai';
-import { activeToolAtom } from "atoms/config_atoms";
+import { activeToolAtom } from "src/atoms/config_atoms";
 
 const options = [
   {
@@ -67,6 +67,7 @@ const Sidebar: FC = () => {
         <SidebarButton
           key={option.value}
           icon={option.icon}
+          // @ts-ignore
           onClick={() => {setActiveTool(option.value);}}
           label={option.label}
           option={option.value}

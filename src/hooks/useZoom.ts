@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import Konva from 'konva';
+import { useState } from "react";
+import Konva from "konva";
 import { debounce } from "lodash";
 
 const MIN_SCALE = 0.1;
@@ -22,8 +22,10 @@ function getCenter(p1: Point, p2: Point) {
   };
 }
 
-
-export const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>, debouncedSetCanvasState: (state: any) => void) => {
+export const handleWheel = (
+  e: Konva.KonvaEventObject<WheelEvent>,
+  debouncedSetCanvasState: (state: any) => void
+) => {
   e.evt.preventDefault();
   window.requestAnimationFrame(() => {
     const stage: any = e.target.getStage();
@@ -52,12 +54,18 @@ export const handleWheel = (e: Konva.KonvaEventObject<WheelEvent>, debouncedSetC
   });
 };
 
-export const handleMultiTouch = (e: Konva.KonvaEventObject<TouchEvent>, debouncedSetCanvasState: (state: any) => void, lastDist: number, lastCenter: Point | null) => {
+export const handleMultiTouch = (
+  e: Konva.KonvaEventObject<TouchEvent>,
+  debouncedSetCanvasState: (state: any) => void,
+  lastDist: number,
+  lastCenter: Point | null
+): {lastDist: number | null; lastCenter: Point | null  } => {
   e.evt.preventDefault();
   var touch1 = e.evt.touches[0];
   var touch2 = e.evt.touches[1];
   const stage = e.target.getStage();
   if (!stage) return;
+  // console.log(touch1, touch2);
   if (touch1 && touch2) {
     var p1 = {
       x: touch1.clientX,
@@ -68,6 +76,7 @@ export const handleMultiTouch = (e: Konva.KonvaEventObject<TouchEvent>, debounce
       y: touch2.clientY,
     };
     const newCenter = getCenter(p1, p2);
+
     const dist = getDistance(p1, p2);
     if (lastCenter && lastDist) {
       var pointTo = {
@@ -75,6 +84,7 @@ export const handleMultiTouch = (e: Konva.KonvaEventObject<TouchEvent>, debounce
         y: (newCenter.y - stage.y()) / stage.scaleX(),
       };
       var newScale = stage.scaleX() * (dist / lastDist);
+      console.log(newScale);
       stage.scaleX(newScale);
       stage.scaleY(newScale);
       var dx = newCenter.x - lastCenter.x;
@@ -93,4 +103,5 @@ export const handleMultiTouch = (e: Konva.KonvaEventObject<TouchEvent>, debounce
     lastDist = dist;
     lastCenter = newCenter;
   }
+  return { lastDist, lastCenter  };
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FC, useRef } from "react";
 import { Stage, Layer, Image, Rect } from "react-konva";
 import Konva from "konva";
-import { canvasStateAtom } from "atoms/config_atoms";
+import { canvasStateAtom } from "src/atoms/config_atoms";
 import { useAtom } from "jotai";
 
 import { debounce } from "lodash";
@@ -66,6 +66,12 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
     if (!emptySpace) return;
     setVisibleText(false);
   };
+
+  const handleTouchMove = (e: Konva.KonvaEventObject<TouchEvent>) => {
+    const last_state = handleMultiTouch(e, debouncedSetCanvasState, lastDist, lastCenter)
+    lastDist = last_state.lastDist;
+    lastCenter = last_state.lastCenter;
+  };
   return (
     <div>
       <Stage
@@ -73,7 +79,7 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
         onDblClick={handleDoubleClick}
         onClick={handleClick}
         onContextMenu={(e) => e.evt.preventDefault()}
-        onTouchMove={(e) => handleMultiTouch(e, debouncedSetCanvasState, lastDist, lastCenter)}
+        onTouchMove={(e) => handleTouchMove(e)}
         onTouchEnd={multiTouchEnd}
         onWheel={(e) => handleWheel(e, debouncedSetCanvasState)}
         width={width}
