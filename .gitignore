@@ -16,14 +16,14 @@ fixtures/dom/public/react.js
 test/the-files-to-test.generated.js
 *.log*
 chrome-user-data
-*.sublime-project
+*.sublime-project   
 *.sublime-workspace
 .idea
 *.iml
 .vscode
 *.swp
 *.swo
-/dist/*
+dist/*
 
 packages/react-devtools-core/dist
 packages/react-devtools-extensions/chrome/build
