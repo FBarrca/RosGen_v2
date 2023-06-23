@@ -1,5 +1,5 @@
 import { useAtom } from "jotai";
-import { allTopicsAtom, TopicAtomFamily } from "atoms/ROS/Topic";
+import { allTopicsAtom, TopicAtomFamily } from "src/atoms/ROS/Topic";
 import { Ellipse, Group, Rect, Text } from "react-konva";
 import { nanoid } from "nanoid";
 

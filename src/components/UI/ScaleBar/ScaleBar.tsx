@@ -1,7 +1,7 @@
 import React from 'react';
 import {  PlusOutlined, MinusOutlined, CompressOutlined } from "@ant-design/icons";
 import { Tooltip, FloatButton } from 'antd'; 
-import { canvasStateAtom } from 'atoms/config_atoms';
+import { canvasStateAtom } from "src/atoms/config_atoms";
 import { useAtom } from 'jotai';
 import { useResetAtom } from 'jotai/utils'
 const ScaleBar = () => {
