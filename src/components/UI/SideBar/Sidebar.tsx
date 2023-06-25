@@ -13,7 +13,6 @@ import {
   PlusCircleTwoTone,
   PlusSquareTwoTone,
 } from "@ant-design/icons"
-import { styled } from "styled-components";
 import { useAtom } from 'jotai';
 import { activeToolAtom } from "src/atoms/config_atoms";
 

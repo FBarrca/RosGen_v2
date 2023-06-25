@@ -23,10 +23,10 @@ export const TopicAtomFamily = atomFamily(
 export const allTopicsAtom = atom<string[]>([]);
 
 
-export const allTopicSubs = (topic) => atom((get) => {
-    const allSubs = get(allSubsAtom);
-    return allSubs.filter((sub) => sub.topic === topic.id);
-});
+// export const allTopicSubs = (topic) => atom((get) => {
+//     const allSubs = get(allSubsAtom);
+//     return allSubs.filter((sub) => sub.topic === topic.id);
+// });
     
 
 export const addTopicAtom = atom(

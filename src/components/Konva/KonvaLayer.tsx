@@ -1,71 +1,71 @@
-import React, { useState, useEffect, FC, useRef } from "react";
-import { Stage, Layer, Image, Rect } from "react-konva";
+import React, { FC, useRef, useState, useEffect } from "react";
 import Konva from "konva";
-import { stageAtom, canvasStateAtom, activeToolAtom } from "src/atoms/config_atoms";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-
+import { Stage, Layer } from "react-konva";
+import { useAtom, useAtomValue } from "jotai";
 import { debounce } from "lodash";
+
 import TextBox from "./InputText/TextBox";
 import { Renderer } from "./ROS/Renderer";
 import { handleMultiTouch, handleWheel } from "src/hooks/useZoom";
+import {
+  stageAtom,
+  canvasStateAtom,
+  activeToolAtom,
+} from "src/atoms/config_atoms";
 
-
-
+interface Point {
+  x: number;
+  y: number;
+}
 interface KonvaLayerProps {
   width: number;
   height: number;
 }
 
 const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
-  const [stage,setCanvasStage] = useAtom(stageAtom);
+  const [stage, setCanvasStage] = useAtom(stageAtom);
   const stageRef = useRef<Konva.Stage>(null);
 
   const [canvasState, setCanvasState] = useAtom(canvasStateAtom);
   const activeTool = useAtomValue(activeToolAtom);
   const debouncedSetCanvasState = debounce(setCanvasState, 100);
-  let lastDist = 0;
-  let lastCenter: Point | null = null;
+
+  let lastDist = 0,
+    lastCenter: Point | null = null;
+
   const multiTouchEnd = () => {
     lastCenter = null;
     lastDist = 0;
   };
-
-  // Update canvas state if aton is changed
-  useEffect(() => {
-    if (!stage) return;
-    if (stage.scaleX() !== canvasState.scale) {
-      stage.scale({ x: canvasState.scale, y: canvasState.scale });
-      // stage.batchDraw();
-    }
+  const syncCanvasState = () => {
     if (
-      stage.x() !== canvasState.position.x ||
-      stage.y() !== canvasState.position.y
-    ) {
-      stage.position({
-        x: canvasState.position.x,
-        y: canvasState.position.y,
-      });
-      // stage.batchDraw();
-    }
-  }, [canvasState]);
+      !stage ||
+      (stage.scaleX() === canvasState.scale &&
+        stage.x() === canvasState.position.x &&
+        stage.y() === canvasState.position.y)
+    )
+      return;
+    stage.scale({ x: canvasState.scale, y: canvasState.scale });
+    stage.position({ x: canvasState.position.x, y: canvasState.position.y });
+  };
 
+  useEffect(syncCanvasState, [canvasState]);
   useEffect(() => {
-    if (!stageRef.current) return;
-    setCanvasStage(stageRef.current);
+    if (stageRef.current) setCanvasStage(stageRef.current);
   }, [stageRef]);
 
-  // 
+  //
   const [ScreenPos, setScreenPos] = useState<Point>({ x: 0, y: 0 });
   const [VisibleText, setVisibleText] = useState<boolean>(false);
   const handleDoubleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
     if (!stage) return;
-    const emptySpace = e.target ===stage;
+    const emptySpace = e.target === stage;
     if (!emptySpace) return;
     const pointerPos = stage.getRelativePointerPosition() || { x: 0, y: 0 };
-    
+
     if (activeTool == "connection") return;
-    setScreenPos((stage.getPointerPosition() as Point));
+    setScreenPos(stage.getPointerPosition() as Point);
     setVisibleText(true);
   };
   const handleClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -75,7 +75,12 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
   };
 
   const handleTouchMove = (e: Konva.KonvaEventObject<TouchEvent>) => {
-    const last_state = handleMultiTouch(e, debouncedSetCanvasState, lastDist, lastCenter)
+    const last_state = handleMultiTouch(
+      e,
+      debouncedSetCanvasState,
+      lastDist,
+      lastCenter
+    );
     lastDist = last_state.lastDist;
     lastCenter = last_state.lastCenter;
   };
@@ -86,21 +91,23 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
         onDblClick={handleDoubleClick}
         onClick={handleClick}
         onContextMenu={(e) => e.evt.preventDefault()}
-        onTouchMove={(e) => handleTouchMove(e)}
+        onTouchMove={handleTouchMove}
         onTouchEnd={multiTouchEnd}
         onWheel={(e) => handleWheel(e, debouncedSetCanvasState)}
         width={width}
         height={height}
       >
         <Layer>
-        <Renderer/>
+          <Renderer />
         </Layer>
       </Stage>
-      {VisibleText &&<TextBox
+      {VisibleText && (
+        <TextBox
           visible={VisibleText}
           position={ScreenPos}
           onExit={(e) => setVisibleText(false)}
-        />}
+        />
+      )}
     </div>
   );
 };

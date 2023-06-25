@@ -2,7 +2,7 @@
 import { atom, Provider, useAtom, useSetAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { nanoid } from "nanoid";
-import { allSubsAtom } from "./Subscriber";
+
 export type Node = {
   id: string; // internal id (nanoid)
   title?: string; // Visible title
@@ -57,6 +57,8 @@ export const addPubAtom = atom(null, (get, set, { nodeID, topic }: { nodeID: str
     set(NodeAtomFamily({ id: nodeID }), node)
   }
 });
+
+
 // return if a node is publishes to a topic
 // export const PublishedTopic = (topic) =>
 //   atom((get) => {
