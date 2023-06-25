@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { WritableAtom, atom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 import Konva from "konva";
 
@@ -24,7 +24,7 @@ interface connectionAtomInterface {
   topic: string | null;
 }
 
-export const connectionAtom = atom<connectionAtomInterface>({
+export const connectionAtom = atomWithReset<connectionAtomInterface>({
   node: null,
   topic: null,
 });
@@ -45,8 +45,13 @@ export const addTopicConnectionAtom = atom(null, (get, set, topicID: string) => 
   return connection.node;
 });
 
-export const resetConnectionAtom = atom(null, (get, set) => {
-  set(connectionAtom, { node: null, topic: null });
-  return connectionAtom;
+
+//  force update
+
+export const forceUpdateAtom = atom<boolean>(false)
+
+export const toggleForceUpdateAtom = atom(null, (get, set) => {
+  set(forceUpdateAtom, (prev) => !prev);
 }
-);
+)
+

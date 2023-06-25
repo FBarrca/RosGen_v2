@@ -2,17 +2,20 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { allTopicsAtom, TopicAtomFamily } from "src/atoms/ROS/Topic";
 import { Ellipse, Group, Rect, Text } from "react-konva";
 import { nanoid } from "nanoid";
-import { activeToolAtom, addTopicConnectionAtom, connectionAtom } from "src/atoms/config_atoms";
-import { addPubAtom } from "src/atoms/ROS/Node";
+import { activeToolAtom, addTopicConnectionAtom, connectionAtom, toggleForceUpdateAtom } from "src/atoms/config_atoms";
+import { addSubAtom } from "src/atoms/ROS/Node";
+import { useResetAtom } from "jotai/utils";
 
 const Topic = ({ id }) => {
   const [topic] = useAtom(TopicAtomFamily({ id }));
   // console.log(topic.id);
 
   const activeTool = useAtomValue(activeToolAtom);
+  const foceUpdate = useSetAtom(toggleForceUpdateAtom);
 
   const connection = useAtomValue(connectionAtom);
-  const addPub = useSetAtom(addPubAtom);
+  const resetConnection = useResetAtom(connectionAtom);
+  const addSub = useSetAtom(addSubAtom);
 
   const addTopicConnection = useSetAtom(addTopicConnectionAtom);
 
@@ -26,7 +29,8 @@ const Topic = ({ id }) => {
     
     const complete = addTopicConnection(id);
     if (!complete) return;
-    addPub({ nodeID: complete, topic: id });
+    addSub({ nodeID: complete, topic: id });
+    resetConnection();
   };
 
   return (
@@ -36,7 +40,7 @@ const Topic = ({ id }) => {
     x = {topic.position.x-width/2}
     y = {topic.position.y -height/2}
     onDragMove={(e) => {
-      // console.log(e);
+      foceUpdate();
     }}
     onClick={(e) => {
       handleClick(e);

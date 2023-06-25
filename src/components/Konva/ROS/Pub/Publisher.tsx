@@ -13,7 +13,7 @@ import {
   getPointOnRectangle,
 } from "../../Arrow/arrow_helpers";
 
-const Sub = ({ nodeID, topicID }: { nodeID: string; topicID: string }) => {
+const Pub = ({ nodeID, topicID }: { nodeID: string; topicID: string }) => {
   const stage = useAtomValue(stageAtom);
   // const node = findKonva(nodeID,stage)
   const topic = findKonva(topicID, stage);
@@ -34,11 +34,11 @@ const Sub = ({ nodeID, topicID }: { nodeID: string; topicID: string }) => {
   return (
     <>
       <ArrowComp
-        from={getPointOnEllipse(130, 50, nodePos.x, nodePos.y, angle)}
-        to={getPointOnRectangle(120, 60, topicPos.x, topicPos.y, -angle)}
+        to={getPointOnEllipse(130, 50, nodePos.x, nodePos.y, angle)}
+        from={getPointOnRectangle(120, 60, topicPos.x, topicPos.y, -angle)}
       />
     </>
   );
 };
 
-export default Sub;
+export default Pub;

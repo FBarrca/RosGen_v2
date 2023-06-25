@@ -1,36 +1,37 @@
-import { WritableAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import {  useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
-  allNodesAtom,
   NodeAtomFamily,
-  addNodeAtom,
   updateNodePositionAtom,
-  addSubAtom,
+  addPubAtom,
 } from "src/atoms/ROS/Node";
-import { Ellipse, Group, Rect, Text } from "react-konva";
-import { nanoid } from "nanoid";
-import { findKonva } from "src/utils/findKonva";
+import { Ellipse, Group, Text } from "react-konva";
 import Sub from "src/components/Konva/ROS/Subs/Subscriber";
 import {
   activeToolAtom,
   addNodeConnectionAtom,
   connectionAtom,
-  resetConnectionAtom,
+  forceUpdateAtom,
   stageAtom,
+  toggleForceUpdateAtom,
 } from "src/atoms/config_atoms";
-import { useEffect } from "react";
-import { add } from "lodash";
+import { useResetAtom } from "jotai/utils";
+import Pub from "../Pub/Publisher";
+
 
 const Node = ({ id }) => {
   const [node] = useAtom(NodeAtomFamily({ id }));
   const stage = useAtomValue(stageAtom);
+  const updateState = useAtomValue(forceUpdateAtom);
+  const foceUpdate = useSetAtom(toggleForceUpdateAtom);
 
   console.log(node.subscribedTopics);
   const activeTool = useAtomValue(activeToolAtom);
 
   const connection = useAtomValue(connectionAtom);
-  const resetConnection = useSetAtom(resetConnectionAtom);
+  const resetConnection = useResetAtom(connectionAtom);
+
   const addNodeConnection = useSetAtom(addNodeConnectionAtom);
-  const addSub = useSetAtom(addSubAtom);
+  const addPub = useSetAtom(addPubAtom);
 
   const updateNodePosition = useSetAtom(updateNodePositionAtom);
   // console.log(node.id);
@@ -38,13 +39,14 @@ const Node = ({ id }) => {
   const height = 100;
   const SubscribedTopics = node.subscribedTopics; // node.subscribedTopics;
   const PublishedTopics = node.publishedTopics;
+
   const handleDrag = (e) => {
     // console.log(e);
     updateNodePosition({
       id: node.id,
       position: { x: e.target.x(), y: e.target.y() },
     });
-    stage.draw();
+    foceUpdate();
   };
 
   const handleClick = (e) => {
@@ -55,10 +57,11 @@ const Node = ({ id }) => {
     const complete = addNodeConnection(id);
     if (!complete) return;
     console.log(`Node: ${id} Topic: ${complete}`);;
-    addSub({ nodeID: id, topic: complete });
+    addPub({ nodeID: id, topic: complete });
 
   console.log(node.subscribedTopics)
     resetConnection();
+
   };
   
   return (
@@ -113,10 +116,13 @@ const Node = ({ id }) => {
       <Sub nodeID={node.id} topicID={topic} />
     )
 })}
-      {/* {PublishedTopics.forEach((topic) => (
-      
-    
-    ))} } */}
+
+{PublishedTopics.map((topic) => {
+    console.log(topic);
+    return (
+      <Pub nodeID={node.id} topicID={topic} />
+    )
+})}
     </>
   );
 };

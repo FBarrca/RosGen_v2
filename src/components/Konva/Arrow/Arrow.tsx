@@ -12,7 +12,10 @@ const ArrowComp = ({ from ,to }:{from:Point,to:Point}) => {
   
   return (
     <Arrow 
-    points={[from.x,from.y,to.x,to.y]}
+    x = {from.x}
+    y = {from.y}
+    points={[0,0,to.x-from.x,to.y-from.y]}
+    // points={[from.x,from.y,to.x,to.y]}
     stroke="black"
     fill="black"
     strokeWidth={2}
