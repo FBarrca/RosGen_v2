@@ -3,12 +3,14 @@ import { Input } from 'antd';
 import Konva from 'konva';
 import type { InputProps, InputRef } from 'antd/lib/input'; // Correct type import
 import { useAtomValue, useSetAtom } from 'jotai';
-import { activeToolAtom } from 'src/atoms/config_atoms';
-import { addNodeAtom } from 'src/atoms/ROS/Node';
+import { activeToolAtom, stageAtom } from 'src/atoms/config_atoms';
+import { addNodeAtom, addSubAtom } from 'src/atoms/ROS/Node';
 import { addTopicAtom } from 'src/atoms/ROS/Topic';
+// import { addSubAtom } from 'src/atoms/ROS/Subscriber';
+import { findKonva } from 'src/utils/findKonva.ts';
 
 interface TextBoxProps {
-    stage: Konva.Stage;
+    visible: boolean;
     position: {
         x: number;
         y: number;
@@ -23,26 +25,22 @@ const onEscape = function (action) {
         };
     });
 }
-// Find konva element by id
-const findKonva = (id: string, stage: Konva.Stage): Konva.Node => {
-    if (!stage) return;
-    const konva = stage.findOne(`#${id}`);
-    // return konva element if found
-    if (konva) return konva;
-      console.error(`Konva element with id ${id} not found`);
-      return;
-    
-  }
+
   
-const TextBox: React.FC<TextBoxProps>  = ({position, stage, onExit}) => {
+const TextBox: React.FC<TextBoxProps>  = ({visible,position, onExit}) => {
     const [value, setValue] = useState('');
     const inputRef = useRef<InputRef>(null);
+    const stage = useAtomValue(stageAtom);
 
     const addNode = useSetAtom(addNodeAtom);
     const addTopic = useSetAtom(addTopicAtom);
+    const addSub = useSetAtom(addSubAtom);
 
     // get value of tool atom
     const activeTool = useAtomValue(activeToolAtom);
+
+    // if (visible ==false) return (<></>);
+
     // Get focus on mount
     useEffect(() => {
         if (!inputRef.current) return;
@@ -56,11 +54,11 @@ const TextBox: React.FC<TextBoxProps>  = ({position, stage, onExit}) => {
         const pointerPosition = stage.getRelativePointerPosition();
         if (activeTool === 'node') {
             // call addNode with no args
-           const newNodeID = addNode({title:value});
+           const newNodeID = addNode({title:value, position: pointerPosition});
               // find konva element by id
             if(!newNodeID) return;
             const konva = findKonva(newNodeID, stage);
-            konva.position({x: pointerPosition.x, y: pointerPosition.y});
+            // konva.position({x: pointerPosition.x, y: pointerPosition.y});
             
         } else if (activeTool === 'topic') {
             const newNodeID = addTopic({title:value});
@@ -68,9 +66,11 @@ const TextBox: React.FC<TextBoxProps>  = ({position, stage, onExit}) => {
           if(!newNodeID) return;
           const konva = findKonva(newNodeID, stage);
           konva.position({x: pointerPosition.x, y: pointerPosition.y});
-        } 
+        } else if (activeTool === 'connection') {
+            // addSub({})
+            const newSub = addSub({nodeID:"sh4aqSk4K98oV1h3_WvO1",topic: "vnSvf7_SIvUtkfnYA1vf0"});
 
-
+        }
 
 
         setValue('');

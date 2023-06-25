@@ -26,7 +26,7 @@ const options = [
   },
   {
     label: "Connections",
-    value: "connect",
+    value: "connection",
     icon: <NodeIndexOutlined />,
     toggle: true,
   },

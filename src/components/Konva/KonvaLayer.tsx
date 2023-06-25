@@ -1,8 +1,8 @@
 import React, { useState, useEffect, FC, useRef } from "react";
 import { Stage, Layer, Image, Rect } from "react-konva";
 import Konva from "konva";
-import { canvasStateAtom } from "src/atoms/config_atoms";
-import { useAtom } from "jotai";
+import { stageAtom, canvasStateAtom, activeToolAtom } from "src/atoms/config_atoms";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { debounce } from "lodash";
 import TextBox from "./InputText/TextBox";
@@ -17,9 +17,11 @@ interface KonvaLayerProps {
 }
 
 const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
+  const [stage,setCanvasStage] = useAtom(stageAtom);
   const stageRef = useRef<Konva.Stage>(null);
 
   const [canvasState, setCanvasState] = useAtom(canvasStateAtom);
+  const activeTool = useAtomValue(activeToolAtom);
   const debouncedSetCanvasState = debounce(setCanvasState, 100);
   let lastDist = 0;
   let lastCenter: Point | null = null;
@@ -30,22 +32,27 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
 
   // Update canvas state if aton is changed
   useEffect(() => {
-    if (!stageRef.current?.scaleX) return;
-    if (stageRef.current?.scaleX() !== canvasState.scale) {
-      stageRef.current?.scale({ x: canvasState.scale, y: canvasState.scale });
-      stageRef.current?.batchDraw();
+    if (!stage) return;
+    if (stage.scaleX() !== canvasState.scale) {
+      stage.scale({ x: canvasState.scale, y: canvasState.scale });
+      // stage.batchDraw();
     }
     if (
-      stageRef.current?.x() !== canvasState.position.x ||
-      stageRef.current?.y() !== canvasState.position.y
+      stage.x() !== canvasState.position.x ||
+      stage.y() !== canvasState.position.y
     ) {
-      stageRef.current?.position({
+      stage.position({
         x: canvasState.position.x,
         y: canvasState.position.y,
       });
-      stageRef.current?.batchDraw();
+      // stage.batchDraw();
     }
   }, [canvasState]);
+
+  useEffect(() => {
+    if (!stageRef.current) return;
+    setCanvasStage(stageRef.current);
+  }, [stageRef]);
 
   // 
   const [ScreenPos, setScreenPos] = useState<Point>({ x: 0, y: 0 });
@@ -57,7 +64,7 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
     if (!emptySpace) return;
     const pointerPos = stage.getRelativePointerPosition() || { x: 0, y: 0 };
     
-
+    if (activeTool == "connection") return;
     setScreenPos((stage.getPointerPosition() as Point));
     setVisibleText(true);
   };
@@ -86,15 +93,14 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
         height={height}
       >
         <Layer>
-        <Renderer />
+        <Renderer/>
         </Layer>
       </Stage>
-      {VisibleText &&  <TextBox
-          stage={stageRef.current!}
+      {VisibleText &&<TextBox
+          visible={VisibleText}
           position={ScreenPos}
           onExit={(e) => setVisibleText(false)}
-        />
-}
+        />}
     </div>
   );
 };

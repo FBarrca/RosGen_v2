@@ -5,7 +5,7 @@ import { CloseOutlined } from "@ant-design/icons";
 import { atom, Provider, useAtom, useSetAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { nanoid } from "nanoid";
-import { allSubsAtom } from "./Subscriber";
+// import { allSubsAtom } from "./Subscriber";
 export type Topic = {
   id: string; // internal id (nanoid)
   title?: string; // Visible title
