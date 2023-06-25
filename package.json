@@ -14,8 +14,10 @@
   },
   "dependencies": {
     "@uidotdev/usehooks": "^2.0.1",
+    "@vitejs/plugin-react": "^4.0.1",
     "antd": "^5.6.1",
     "jotai": "^2.2.1",
+    "jotai-devtools": "^0.5.3",
     "lodash": "^4.17.21",
     "nanoid": "^4.0.2",
     "react": "^18.2.0",
