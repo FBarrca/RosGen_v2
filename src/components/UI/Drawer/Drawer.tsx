@@ -4,7 +4,20 @@ import React from "react";
 import { drawerStateAtom } from "src/atoms/config_atoms";
 import { DeleteOutlined } from "@ant-design/icons";
 import DrawerNode from "./DrawerNode";
+import styled from "styled-components";
 
+
+
+const StyledDrawer = styled(Drawer)`
+  
+  .ant-drawer-body {
+    padding-top: 5px;
+    // center horizontally
+    display: flex;
+    justify-content: center;
+  }
+
+`;
 const InfoDrawer: React.FC = () => {
   const [drawerState, setDrawerState] = useAtom(drawerStateAtom);
   // Type capitalized
@@ -21,7 +34,7 @@ const InfoDrawer: React.FC = () => {
   const renderContent = () => {
     switch (drawerState.viewingType) {
       case "node":
-        return <DrawerNode />;
+        return <DrawerNode id={drawerState.viewingID}/>;
       case "topic":
         return <div>Edge</div>;
       case "subscriber":
@@ -32,7 +45,7 @@ const InfoDrawer: React.FC = () => {
   };
 
   return (
-    <Drawer
+    <StyledDrawer
       title={name}
       placement="right"
       onClose={handleClose}
@@ -52,7 +65,7 @@ const InfoDrawer: React.FC = () => {
       }
     >
       {renderContent()}
-    </Drawer>
+    </StyledDrawer>
   );
 };
 
