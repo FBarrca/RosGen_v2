@@ -29,14 +29,12 @@ export const connectionAtom = atomWithReset<connectionAtomInterface>({
   node: null,
   topic: null,
 });
-
 export const addNodeConnectionAtom = atom(null, (get, set, nodeID: string) => {
   set(connectionAtom, (prev) => ({ ...prev, node: nodeID }));
   const connection = get(connectionAtom);
   if (connection.topic == null) return false;
   return connection.topic;
 });
-
 export const addTopicConnectionAtom = atom(
   null,
   (get, set, topicID: string) => {
@@ -47,10 +45,20 @@ export const addTopicConnectionAtom = atom(
   }
 );
 
-//  force update
-
+//  force update all components that read this atom used because atomFamily does not update when the atom is updated
 export const forceUpdateAtom = atom<boolean>(false);
-
 export const toggleForceUpdateAtom = atom(null, (get, set) => {
   set(forceUpdateAtom, (prev) => !prev);
+});
+
+export interface drawerAtomInterface {
+  isOpen: boolean;
+  viewingID: string | null;
+  viewingType: "node" | "topic" | "subscriber" | "publisher" | null;
+}
+// Used to store the drawer states
+export const drawerStateAtom = atomWithReset<drawerAtomInterface>({
+  isOpen: false,
+  viewingID: null,
+  viewingType: null,
 });

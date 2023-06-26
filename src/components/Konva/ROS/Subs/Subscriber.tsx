@@ -11,7 +11,6 @@ import {
 
 const Sub = ({ nodeID, topicID }: { nodeID: string; topicID: string }) => {
   const stage = useAtomValue(stageAtom);
-  // const node = findKonva(nodeID,stage)
   const topic = findKonva(topicID, stage);
   const nodeAtom = useAtomValue(NodeAtomFamily({ id: nodeID }));
 

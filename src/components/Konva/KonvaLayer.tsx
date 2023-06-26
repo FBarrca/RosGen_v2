@@ -97,7 +97,9 @@ const KonvaLayer: FC<KonvaLayerProps> = ({ width, height }) => {
         width={width}
         height={height}
       >
-        <Layer>
+        <Layer
+          imageSmoothingEnabled={true}
+        >
           <Renderer />
         </Layer>
       </Stage>

@@ -10,32 +10,23 @@ import {
   activeToolAtom,
   addNodeConnectionAtom,
   connectionAtom,
+  drawerStateAtom,
   forceUpdateAtom,
   toggleForceUpdateAtom,
 } from "src/atoms/config_atoms";
 import { useResetAtom } from "jotai/utils";
 import Pub from "../Pub/Publisher";
+import { useRef } from "react";
 
 const Node = ({ id }) => {
   const [node] = useAtom(NodeAtomFamily({ id }));
-  const updateState = useAtomValue(forceUpdateAtom);
-  const foceUpdate = useSetAtom(toggleForceUpdateAtom);
-
-  const activeTool = useAtomValue(activeToolAtom);
-
-  const connection = useAtomValue(connectionAtom);
-  const resetConnection = useResetAtom(connectionAtom);
-
-  const addNodeConnection = useSetAtom(addNodeConnectionAtom);
-  const addPub = useSetAtom(addPubAtom);
-
-  const updateNodePosition = useSetAtom(updateNodePositionAtom);
-
   const width = 260;
   const height = 100;
-  const SubscribedTopics = node.subscribedTopics; // node.subscribedTopics;
-  const PublishedTopics = node.publishedTopics;
 
+  // Rerender the arrows at drag
+  const updateState = useAtomValue(forceUpdateAtom);
+  const foceUpdate = useSetAtom(toggleForceUpdateAtom);
+  const updateNodePosition = useSetAtom(updateNodePositionAtom);
   const handleDrag = (e) => {
     updateNodePosition({
       id: node.id,
@@ -43,6 +34,15 @@ const Node = ({ id }) => {
     });
     foceUpdate();
   };
+
+  // Add connection between nodes
+  const activeTool = useAtomValue(activeToolAtom);
+
+  const connection = useAtomValue(connectionAtom);
+  const resetConnection = useResetAtom(connectionAtom);
+
+  const addNodeConnection = useSetAtom(addNodeConnectionAtom);
+  const addPub = useSetAtom(addPubAtom);
 
   const handleClick = (e) => {
     if (activeTool !== "connection") return;
@@ -53,11 +53,28 @@ const Node = ({ id }) => {
 
     resetConnection();
   };
+
+  // To open the drawer
+  const setDrawer = useSetAtom(drawerStateAtom);
+
   const handleRightClick = (e) => {
     e.evt.preventDefault();
     console.log("right click");
+    setDrawer({ isOpen: true, viewingID: id, viewingType: "node" });
   };
-
+  const holdTimeoutRef = useRef(null);
+  const handleTouchStart = (e) => {
+    holdTimeoutRef.current = setTimeout(() => {
+      console.log("hold");
+      setDrawer({ isOpen: true, viewingID: id, viewingType: "node" });
+    }, 500); // adjust the hold duration (ms)
+  };
+  const handleTouchEnd = (e) => {
+    clearTimeout(holdTimeoutRef.current);
+  };
+  const handleDragStart = (e) => {
+    clearTimeout(holdTimeoutRef.current);  // prevent hold event
+  };
   return (
     <>
       <Group
@@ -69,6 +86,9 @@ const Node = ({ id }) => {
         onClick={handleClick}
         onTap={handleClick}
         onContextMenu={handleRightClick}
+        onDragStart={handleDragStart}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <Ellipse
           radiusX={width / 2}
@@ -92,12 +112,24 @@ const Node = ({ id }) => {
         />
       </Group>
 
-      {SubscribedTopics.map((topic) => {
-        return <Sub nodeID={node.id} topicID={topic} key={"Sub_"+node.id+topic}/>;
+      {node.subscribedTopics.map((topic) => {
+        return (
+          <Sub
+            nodeID={node.id}
+            topicID={topic}
+            key={"Sub_" + node.id + topic}
+          />
+        );
       })}
 
-      {PublishedTopics.map((topic) => {
-        return <Pub nodeID={node.id} topicID={topic} key={"Pub_"+node.id+topic}/>;
+      {node.publishedTopics.map((topic) => {
+        return (
+          <Pub
+            nodeID={node.id}
+            topicID={topic}
+            key={"Pub_" + node.id + topic}
+          />
+        );
       })}
     </>
   );
