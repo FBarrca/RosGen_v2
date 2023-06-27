@@ -8,6 +8,7 @@ import { addNodeAtom, addSubAtom } from 'src/atoms/ROS/Node';
 import { addTopicAtom } from 'src/atoms/ROS/Topic';
 // import { addSubAtom } from 'src/atoms/ROS/Subscriber';
 import { findKonva } from 'src/utils/findKonva.ts';
+import { currentDeviceAtom } from 'src/atoms/ROS/Device';
 
 interface TextBoxProps {
     visible: boolean;
@@ -31,6 +32,7 @@ const TextBox: React.FC<TextBoxProps>  = ({visible,position, onExit}) => {
     const [value, setValue] = useState('');
     const inputRef = useRef<InputRef>(null);
     const stage = useAtomValue(stageAtom);
+    const currentDevice = useAtomValue(currentDeviceAtom);
 
     const addNode = useSetAtom(addNodeAtom);
     const addTopic = useSetAtom(addTopicAtom);
@@ -54,7 +56,7 @@ const TextBox: React.FC<TextBoxProps>  = ({visible,position, onExit}) => {
         const pointerPosition = stage.getRelativePointerPosition();
         if (activeTool === 'node') {
             // call addNode with no args
-           const newNodeID = addNode({title:value, position: pointerPosition});
+           const newNodeID = addNode({title:value, deviceID:currentDevice, position: pointerPosition});
               // find konva element by id
             if(!newNodeID) return;
             const konva = findKonva(newNodeID, stage);

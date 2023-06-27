@@ -1,11 +1,12 @@
 // import { Col, Drawer, Row } from "antd";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useContext, useEffect } from "react";
 import { drawerStateAtom } from "src/atoms/config_atoms";
 import styled from "styled-components";
 import { Col, Row as AntRow, Row, Select } from "antd";
 import DrawerItem from "./DrawerItem";
 import { NodeAtomFamily } from "src/atoms/ROS/Node";
+import { allDevicesAtom } from "src/atoms/ROS/Device";
 
 const StyledRow = styled(AntRow)`
   color: black;
@@ -14,12 +15,15 @@ const StyledRow = styled(AntRow)`
     border: 1px solid black;
   }
 `;
+interface DrawerNodeProps {
+    id: string;
+}
 
-const DrawerNode: React.FC = ({ id }: { id: string }) => {
+const DrawerNode: React.FC<DrawerNodeProps> = ({ id }) => {
   const [drawerState, setDrawerState] = useAtom(drawerStateAtom);
 
   const [node, setNode] = useAtom(NodeAtomFamily({ id }));
-
+  const allDevices = useAtomValue(allDevicesAtom);
   console.log(node);
   return (
     // center horizontally
@@ -35,17 +39,18 @@ const DrawerNode: React.FC = ({ id }: { id: string }) => {
       <Row>
         <Col span={24}>
           <DrawerItem
-            title="Devices"
+            title="Running on Device"
             content={
               <Select
-                defaultValue="lucy"
-                style={{ width: 120 }}
+                defaultValue= {node.deviceID}
+                style={{ width: "98%" }}
                 // onChange={handleChange}
                 options={[
-                  { value: "jack", label: "Jack" },
-                  { value: "lucy", label: "Lucy" },
-                  { value: "Yiminghe", label: "yiminghe" },
-                  { value: "disabled", label: "Disabled", disabled: true },
+                
+                  ...allDevices.map((device) => ({
+                    label: device.title,
+                    value: device.id,
+                  })),
                 ]}
               />
             }

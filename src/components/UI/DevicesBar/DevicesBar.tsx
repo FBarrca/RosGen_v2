@@ -12,6 +12,9 @@ import {
   PlusOutlined,
   DesktopOutlined,
 } from "@ant-design/icons";
+import { useAtom, useAtomValue } from "jotai";
+import { allDevicesAtom, currentDeviceAtom } from "src/atoms/ROS/Device";
+import { nanoid } from "nanoid";
 
 const devices = {
   selected: 0,
@@ -58,18 +61,11 @@ const StyledCard = styled(Card)`
 
 const DevicesBar: FC = () => {
   const [visible, setVisible] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState<number | null>(null);
-  const [mode, setMode] = useState<"view" | "edit"|"none"|"delete">("view");
+  const [mode, setMode] = useState<"view" | "edit" | "none" | "delete">("view");
 
-  const removeDevice = (id: number) => {
-    console.log(`Device with id ${id} removed.`);
-    // remove the device from your state here
-  };
+  const [allDevices, setAllDevices] = useAtom(allDevicesAtom);
+  const [selectedDevice, setSelectedDevice] = useAtomValue(currentDeviceAtom)
 
-  const editDevice = (id: number, newName: string) => {
-    console.log(`Device with id ${id} edited. New name: ${newName}`);
-    // update the device in your state here
-  };
   useEffect(() => {
     const handleResize = () => {
       if (visible) {
@@ -111,7 +107,11 @@ const DevicesBar: FC = () => {
           </Col>
           <Col
             className={visible ? "" : "fade-out"}
-            style={{ display: "flex", alignItems: "center", marginLeft: "10px" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: "10px",
+            }}
           >
             Devices:
           </Col>
@@ -124,7 +124,14 @@ const DevicesBar: FC = () => {
                 key="setting"
                 onClick={() => {
                   setMode("none");
-                  // addDevice();
+                  setAllDevices([
+                    ...allDevices,
+                    {
+                      id: nanoid(),
+                      title: "New Device",
+                      color: "#f44336",
+                    },
+                  ]);
                 }}
               />,
               <EditOutlined key="edit" onClick={() => setMode("edit")} />,
@@ -139,37 +146,21 @@ const DevicesBar: FC = () => {
           <div className="slide-down">
             <List
               size="small"
-              dataSource={devices.list}
+              dataSource={allDevices}
               style={{
                 maxHeight: "200px",
                 overflowY: "auto",
               }}
-              renderItem={(item) => (
+              renderItem={(item, index) => (
                 <DeviceButton
-                  key={item.id}
+                  index={index}
                   color={item.color}
-                  name={item.name}
+                  title={item.title}
                   id={item.id}
-                  onChange={(color) => {
-                    console.log(color);
-                    item.color = color;
-                    setDevices({
-                      ...devices,
-                    });
-                  }}
-                  onClick={() => {
-                    setSelectedDevice(item.id);
-                    setDevices({
-                      ...devices,
-                      selected: item.id,
-                    });
-                  }}
+                  key={item.id}
                   selected={item.id === selectedDevice}
-                  onClickDelete={(e: any, id: number) => removeDevice(id)}
-                  onClickEdit={(newName: string) =>
-                    editDevice(item.id, newName)
-                  }
-                  mode={mode}
+                  editing={mode === "edit"}
+                  deleting={mode === "delete"}
                 />
               )}
             />

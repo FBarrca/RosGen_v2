@@ -1,54 +1,93 @@
 import React, { useRef, useState, useCallback } from "react";
-import { Popover, List, Button, Typography } from "antd";
-import { DeleteOutlined, EditOutlined, PlusOutlined, RightOutlined } from "@ant-design/icons";
+import { Popover, List, Button, Typography, Input } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 
 import { HexColorPicker } from "react-colorful";
 import useClickOutside from "./useClickOutside";
+import { c } from "node_modules/jotai-devtools/dist/useAtomsDevtools-f8e164e7";
+import { useAtom, useSetAtom } from "jotai";
+import { currentDeviceAtom, deleteDeviceAtom, updateColorAtom, updateTitleAtom } from "src/atoms/ROS/Device";
+import { selectAtom } from "node_modules/jotai/utils";
 
 const { Text } = Typography;
 interface DeviceButtonProps {
+  index: number;
+  id: string;
+  title: string;
   color: string;
-  name: string;
-  id: number;
-  onChange: (color: string) => void;
-  mode: "none" |"view" |"edit" | "delete";
   selected: boolean;
-  onClick: () => void;
-  onClickDelete: (e: any, id: number) => void;
-  onClickEdit: (newName: string) => void;
+  editing: boolean;
+  deleting: boolean;
 }
 const DeviceButton: React.FC<DeviceButtonProps> = (props) => {
   const popover: any = useRef();
   const [isOpen, toggle] = useState(false);
 
+  // console.log(props.index);
   const close = useCallback(() => toggle(false), []);
   useClickOutside(popover, close);
+  const setColor = useSetAtom(updateColorAtom)
+  const setTitle = useSetAtom(updateTitleAtom)
+  const [selectedDevice, setSelectedDevice] = useAtom(currentDeviceAtom)
 
-  const content = <HexColorPicker color={props.color} onChange={props.onChange} />;
-  return (
-    <List.Item
-      extra={
-        props.mode === "delete" &&
-        props.id != 0 && (
-          <Button icon={<DeleteOutlined key="delete" />} onClick={(e) => props.onClickDelete(e, props.id)} />
-        )
+
+  const deleteDevice = useSetAtom(deleteDeviceAtom)
+  const colorPickerComponent = (
+    <HexColorPicker
+      color={props.color}
+      onChange={(color) => {
+        setColor({id: props.id, color: color})
+      }}
+    />
+  );
+
+  const titleComponent = props.editing ? 
+    <Input defaultValue={props.title} size="small" 
+    onChange={(e) => 
+      setTitle({id: props.id, title: e.target.value})
+    } /> 
+    : props.title;
+
+
+
+    const deleteButton = (props.deleting && props.id != "default" ) ? (
+      <Button
+        type="text"
+        icon={<DeleteOutlined />}
+        size="small"
+        onClick={() => 
+        deleteDevice(props.id)
       }
-      style={props.selected ? { backgroundColor: "#eaeaea" } : {}}
-      onClick={() => props.onClick()}
+      />
+    ) : null;
+  return (
+    <List.Item 
+    style={(selectedDevice === props.id) ? { backgroundColor: "#e9ecef" } : {backgroundColor: "#ffffff"}}
+    extra={deleteButton}  
+    onClick={() => setSelectedDevice(props.id)}
     >
       <List.Item.Meta
         avatar={
           <div className="picker">
-            <Popover content={content} title="Pick a new color" trigger="click" placement="leftTop">
-              <div className="swatch" style={{ backgroundColor: props.color }} />
+            <Popover
+              content={colorPickerComponent}
+              title="Pick a new color"
+              trigger="click"
+              placement="leftTop"
+            >
+              <div
+                className="swatch"
+                style={{ backgroundColor: props.color }}
+              />
             </Popover>
           </div>
         }
-        title={
-          <Text editable={props.mode === "edit" ? { onChange: (newText) => props.onClickEdit(newText) } : false}>
-            {props.name}
-          </Text>
-        }
+        title={titleComponent}
       />
     </List.Item>
   );

@@ -2,9 +2,11 @@
 import { atom, Provider, useAtom, useSetAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { nanoid } from "nanoid";
+import { allDevicesAtom } from "./Device";
 
 export type Node = {
   id: string; // internal id (nanoid)
+  deviceID?: string; // device the node belongs to
   title?: string; // Visible title
   position?: { x: number; y: number };
   subscribedTopics?: string[];
@@ -21,12 +23,18 @@ export const allNodesAtom = atom<string[]>([]);
 
 // Write only atom to add a new node
 export const addNodeAtom = atom(null, (get, set, arg?: Partial<Node>) => {
+  if (!arg.deviceID) return; // DeviceID is required
+  console.log("addNodeAtom", arg.deviceID);
+  // Make sure the device exists
+  const device = get(allDevicesAtom).find((d) => d.id === arg.deviceID);
+  if (!device) return; // Device not found
   const id = nanoid();
   // Add the new id to allNodesAtom
   set(allNodesAtom, (prev) => [...prev, id]);
   // Create a new node in NodeAtomFamily with arg properties
   NodeAtomFamily({
     id,
+    deviceID: arg.deviceID,
     title: "New Node",
     position: { x: 0, y: 0 },
     subscribedTopics: [],

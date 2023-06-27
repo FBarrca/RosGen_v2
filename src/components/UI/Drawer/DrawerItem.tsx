@@ -6,10 +6,10 @@ import { Card as AntCard, Button } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 interface DrawerItemProps {
-  title: string | React.ReactNode;
+  title: string ;
   editable?: boolean;
   deletable?: boolean;
-  content: string;
+  content: string | React.ReactNode;
 }
 
 
