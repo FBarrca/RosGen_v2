@@ -44,6 +44,13 @@ export const addNodeAtom = atom(null, (get, set, arg?: Partial<Node>) => {
   return id;
 });
 
+export const deleteNodeAtom = atom(null, (get, set, id: string) => {
+  // Remove the node from allNodesAtom
+  set(allNodesAtom, (prev) => prev.filter((nodeID) => nodeID !== id));
+  // Remove the node from NodeAtomFamily
+  set(NodeAtomFamily({ id }), null);
+});
+
 export const updateNodePositionAtom = atom(
   null,
   (get, set, { id, position }) => {
@@ -57,7 +64,7 @@ export const addSubAtom = atom(
   null,
   (get, set, { nodeID, topic }: { nodeID: string; topic: string }) => {
     const node = get(NodeAtomFamily({ id: nodeID }));
-    if (!node.subscribedTopics) return;
+    if (!node) return;
     // Check if the topic is already subscribed
     if (node.subscribedTopics.includes(topic)) return;
     node.subscribedTopics.push(topic);

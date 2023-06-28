@@ -1,10 +1,13 @@
 import { Button, Drawer } from "antd";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import React from "react";
 import { drawerStateAtom } from "src/atoms/config_atoms";
 import { DeleteOutlined } from "@ant-design/icons";
 import DrawerNode from "./DrawerNode";
 import styled from "styled-components";
+import { deleteNodeAtom } from "src/atoms/ROS/Node";
+import { set } from "lodash";
+import { useResetAtom } from "jotai/utils";
 
 
 
@@ -20,7 +23,8 @@ const StyledDrawer = styled(Drawer)`
 `;
 const InfoDrawer: React.FC = () => {
   const [drawerState, setDrawerState] = useAtom(drawerStateAtom);
-  // Type capitalized
+  const deleteNode = useSetAtom(deleteNodeAtom);
+  const resetDrawer = useResetAtom(drawerStateAtom);
   if (!drawerState.viewingType) return null;
 
   const name =
@@ -32,11 +36,18 @@ const InfoDrawer: React.FC = () => {
   };
 
   const handleDelete = () => {
+
+    const prevdrawer = drawerState;
+ 
     switch (drawerState.viewingType) {
       case "node":
-        break;  
+        deleteNode(drawerState.viewingID);
+        break;
 
+      default:
+        break;
     }
+    resetDrawer();
   };
 
 
