@@ -44,28 +44,38 @@ export const addNodeAtom = atom(null, (get, set, arg?: Partial<Node>) => {
   return id;
 });
 
-export const updateNodePositionAtom = atom(null, (get, set, { id, position }) => {
-  const node = get(NodeAtomFamily({ id }));
-  node.position = position;
-  set(NodeAtomFamily({ id }), node);
-});
-
-
-export const addSubAtom = atom(null, (get, set, { nodeID, topic }: { nodeID: string, topic: string }) => {
-  const node = get(NodeAtomFamily({ id: nodeID }))
-  if (node.subscribedTopics) {
-    node.subscribedTopics.push(topic)
-    set(NodeAtomFamily({ id: nodeID }), node)
+export const updateNodePositionAtom = atom(
+  null,
+  (get, set, { id, position }) => {
+    const node = get(NodeAtomFamily({ id }));
+    node.position = position;
+    set(NodeAtomFamily({ id }), node);
   }
-});
-export const addPubAtom = atom(null, (get, set, { nodeID, topic }: { nodeID: string, topic: string }) => {
-  const node = get(NodeAtomFamily({ id: nodeID }))
-  if (node.publishedTopics) {
-    node.publishedTopics.push(topic)
-    set(NodeAtomFamily({ id: nodeID }), node)
-  }
-});
+);
 
+export const addSubAtom = atom(
+  null,
+  (get, set, { nodeID, topic }: { nodeID: string; topic: string }) => {
+    const node = get(NodeAtomFamily({ id: nodeID }));
+    if (!node.subscribedTopics) return;
+    // Check if the topic is already subscribed
+    if (node.subscribedTopics.includes(topic)) return;
+    node.subscribedTopics.push(topic);
+    set(NodeAtomFamily({ id: nodeID }), node);
+  }
+);
+export const addPubAtom = atom(
+  null,
+  (get, set, { nodeID, topic }: { nodeID: string; topic: string }) => {
+    const node = get(NodeAtomFamily({ id: nodeID }));
+    if (!node.publishedTopics) return;
+    // Check if the topic is already published
+    if (node.publishedTopics.includes(topic)) return;
+
+    node.publishedTopics.push(topic);
+    set(NodeAtomFamily({ id: nodeID }), node);
+  }
+);
 
 // return if a node is publishes to a topic
 // export const PublishedTopic = (topic) =>
@@ -85,5 +95,4 @@ export const addPubAtom = atom(null, (get, set, { nodeID, topic }: { nodeID: str
 //     );
 //   });
 
-
-// 
+//

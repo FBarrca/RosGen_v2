@@ -31,6 +31,15 @@ const InfoDrawer: React.FC = () => {
     setDrawerState((prev) => ({ ...prev, isOpen: false }));
   };
 
+  const handleDelete = () => {
+    switch (drawerState.viewingType) {
+      case "node":
+        break;  
+
+    }
+  };
+
+
   const renderContent = () => {
     switch (drawerState.viewingType) {
       case "node":
@@ -56,7 +65,7 @@ const InfoDrawer: React.FC = () => {
             <Button
               type="primary"
               icon={<DeleteOutlined />}
-              // onClick={}
+              onClick={handleDelete}
             >
               Delete
             </Button>

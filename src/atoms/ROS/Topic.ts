@@ -10,12 +10,13 @@ export type Topic = {
   id: string; // internal id (nanoid)
   title?: string; // Visible title
   position?: { x: number; y: number };
+  msg_type?: string;
 };
 
 // 1st arg: atom constructor we always need to pass an id but
 // 2nd arg: when comparing two atoms, look at the id property to see if they are the same
 export const TopicAtomFamily = atomFamily(
-  ({ id }: Topic) => atom({id:id, title: "title", position: { x: 0, y: 0 } }),
+  ( topic : Topic) => atom({...topic}),
   (a, b) => a.id === b.id
 );
 
@@ -23,23 +24,33 @@ export const TopicAtomFamily = atomFamily(
 export const allTopicsAtom = atom<string[]>([]);
 
 
-// export const allTopicSubs = (topic) => atom((get) => {
-//     const allSubs = get(allSubsAtom);
-//     return allSubs.filter((sub) => sub.topic === topic.id);
-// });
-    
+// Write only atom to add a new node
+export const addTopicAtom = atom(null, (get, set, arg?: Partial<Topic>) => {
+  const id = nanoid();
+  // Add the new id to allNodesAtom
+  set(allTopicsAtom, (prev) => [...prev, id]);
+  // Create a new node in NodeAtomFamily with arg properties
+  TopicAtomFamily({
+    id,
+    title: "New topic",
+    position: { x: 0, y: 0 },
+    msg_type: "std_msgs/String",
+    ...arg,
+  });
+  return id;
+});
 
-export const addTopicAtom = atom(
-    null,
-    (get, set, arg?: Partial<Topic>) => {
-      const id = nanoid();
-      // Add the new id to allNodesAtom
-      set(allTopicsAtom, (prev) => [...prev, id]);
-      // Create a new node in NodeAtomFamily with arg properties
-      TopicAtomFamily({ id, title: "New topic", position: { x: 0, y: 0 }, ...arg });
-      return id;
-    }
-  );
+// export const addTopicAtom = atom(
+//     null,
+//     (get, set, arg?: Partial<Topic>) => {
+//       const id = nanoid();
+//       // Add the new id to allNodesAtom
+//       set(allTopicsAtom, (prev) => [...prev, id]);
+//       // Create a new node in NodeAtomFamily with arg properties
+//       TopicAtomFamily({ id, title: "New topic", position: { x: 0, y: 0 }, ...arg });
+//       return id;
+//     }
+//   );
   
 
 //  To call use   const [item, setItem] = useAtom(todoAtomFamily({ id }));

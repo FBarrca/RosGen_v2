@@ -9,7 +9,8 @@ interface DrawerItemProps {
   title: string ;
   editable?: boolean;
   deletable?: boolean;
-  content: string | React.ReactNode;
+  content:any; //string | React.ReactNode;
+  style ?: React.CSSProperties;
 }
 
 
@@ -30,11 +31,13 @@ const StyledCard = styled(AntCard)`
   }
   .ant-card-body {
     padding: 10px;
-    padding-left: 20px;
+    padding-left: 15px;
     max-width: 99%;   // Specify maximum width
     overflow-x: auto;  // Enable horizontal scrolling if content overflows
     // dont fold
     white-space: nowrap;
+    height: 100%;
+
   }
 `;
 
@@ -50,6 +53,7 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
   editable,
   deletable,
   content,
+  style
 }) => {
   const [drawerState, setDrawerState] = useAtom(drawerStateAtom);
 
@@ -57,6 +61,7 @@ const DrawerItem: React.FC<DrawerItemProps> = ({
     <StyledCard
       title={title + ":"}
       bordered={true}
+      style={style}
       extra={
         <>
           {editable && <StyledButton icon={<EditOutlined />} />}
